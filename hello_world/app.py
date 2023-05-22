@@ -13,16 +13,11 @@ def create(event):
         "email": action['email']
     }
     db_response = dynamo_table('Actions').put_item(Item=params)
-    return {"statusCode": 201, "headers": "", "body": json.dumps(params)}
+    return {"statusCode": 200, "body": json.dumps(params)}
 
 def list():
     actions_details = dynamo_table('Actions').scan()
-
     response: dict[str, list | dict] = {"items": actions_details["Items"]}
-
-    if last_key := actions_details.get("LastEvaluatedKey"):
-        response["lastKey"] = last_key
-
     return {
         "statusCode": 200,
         "headers": {},
@@ -44,7 +39,6 @@ def delete(event):
 def update(event):
 
     action: dict[str, str] = json.loads(event["body"])
-    print("cheguei aqui!")
     search_params = {
         "id": str(event["queryStringParameters"]["id"]),
         "created_dt": str(event["queryStringParameters"]["date"]),
